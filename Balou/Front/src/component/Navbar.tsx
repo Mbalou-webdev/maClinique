@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import logo from '../assets/images/Blue__white_and_green_Medical_care_logo-removebg-preview.png';
+import logo from '../assets/images/Blue__white_and_green_Medical_care_logo__1_-removebg-preview.png';
 
 interface User {
   name: string;
@@ -12,10 +12,13 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Vérifie le token à chaque rendu
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setUser({ name: 'Utilisateur connecté' }); // exemple, à remplacer par les vraies données
+      setUser({ name: 'Utilisateur connecté' });
+    } else {
+      setUser(null);
     }
   }, []);
 
@@ -26,16 +29,16 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-30 items-center">
+        <div className="flex justify-between items-center h-20 md:h-28">
           
           {/* Logo */}
           <div className="flex-shrink-0">
-               <Link to="/" className="flex items-center space-x-2">
-                  <img src={logo} alt="Nafa Santé" className="h-28 w-auto" />
-                  <span className="text-xl font-bold text-blue-900">Nafa Santé</span>
-           </Link>
+            <Link to="/" className="flex items-center space-x-2">
+              <img src={logo} alt="Nafa Santé" className="h-12 md:h-28 w-auto" />
+              <span className="text-lg md:text-xl font-bold text-blue-900">Nafa Santé</span>
+            </Link>
           </div>
 
           {/* Menu Desktop */}
@@ -49,13 +52,13 @@ export default function Navbar() {
               <>
                 <Link
                   to="/dashboard"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                 >
                   Mon espace personnel
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
                 >
                   Déconnexion
                 </button>
@@ -74,8 +77,11 @@ export default function Navbar() {
 
           {/* Bouton mobile */}
           <div className="md:hidden">
-            <button onClick={() => setMenuOpen(!menuOpen)}>
-              ☰
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-2xl focus:outline-none"
+            >
+              {menuOpen ? '✕' : '☰'}
             </button>
           </div>
         </div>
@@ -83,33 +89,33 @@ export default function Navbar() {
 
       {/* Menu Mobile */}
       {menuOpen && (
-        <div className="md:hidden bg-white px-4 pt-2 pb-3 space-y-2">
-          <Link to="/" className="block hover:text-blue-900">Accueil</Link>
-          <Link to="/services" className="block hover:text-blue-900">Services</Link>
-          <Link to="/doctors" className="block hover:text-blue-900">Médecins</Link>
-          <Link to="/contact" className="block hover:text-blue-900">Contact</Link>
+        <div className="md:hidden bg-white px-4 pt-2 pb-4 space-y-2 shadow-md">
+          <Link to="/" className="block py-2 hover:text-blue-900">Accueil</Link>
+          <Link to="/services" className="block py-2 hover:text-blue-900">Services</Link>
+          <Link to="/doctors" className="block py-2 hover:text-blue-900">Médecins</Link>
+          <Link to="/contact" className="block py-2 hover:text-blue-900">Contact</Link>
 
           {user ? (
             <>
               <Link
                 to="/dashboard"
-                className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
               >
                 Mon espace personnel
               </Link>
               <button
                 onClick={handleSignOut}
-                className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
               >
                 Déconnexion
               </button>
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => navigate('/register')}>
+              <Button variant="outline" onClick={() => navigate('/register')} className="w-full">
                 Inscription
               </Button>
-              <Button variant="primary" onClick={() => navigate('/login')}>
+              <Button variant="primary" onClick={() => navigate('/login')} className="w-full">
                 Connexion
               </Button>
             </>

@@ -18,10 +18,10 @@ const ReserveButton: React.FC<ReserveButtonProps> = ({ isAuthenticated, onClick,
       ${full
         ? isAuthenticated 
           ? 'bg-blue-600 hover:bg-blue-700 text-lg px-8 py-2'  // couleur et padding ici
-          : 'bg-gray-400 hover:bg-gray-500 text-sm px-4 py-2 cursor-pointer'
+          : 'bg-gray-400 hover:bg-blue-600 text-sm px-4 py-2 cursor-pointer'
         : isAuthenticated 
           ? 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-sm px-4 py-2 w-full' 
-          : 'border-gray-400 text-gray-500 hover:bg-gray-100 text-sm px-4 py-2 w-full'
+          : 'border-gray-400 text-gray-500 hover:bg-gray-300 text-sm px-4 py-2 w-full'
       } transition-all duration-300`}
     onClick={onClick}
   >

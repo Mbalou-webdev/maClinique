@@ -1,18 +1,24 @@
 import { Heart, Phone, Mail, MapPin, Clock } from 'lucide-react';
+import logo from "../../assets/images/Blue__white_and_green_Medical_care_logo__1_-removebg-preview.png";
+
 
 const Footer = () => {
   return (
     <footer className="bg-blue-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo et Slogan */}
+          {/* ✅ Logo et Slogan */}
           <div>
             <div className="flex items-center">
-              <Heart className="h-8 w-8 text-blue-400" aria-hidden="true" />
+              <img
+                src={logo}
+                alt="Nafa Santé Logo"
+                className="h-20 w-20"
+              />
               <span className="ml-2 text-xl font-bold">Nafa Santé</span>
             </div>
             <p className="mt-4 text-blue-200">
-            Nafa Santé : Prenez soin de vous, en toute simplicité.
+              Nafa Santé : Prenez soin de vous, en toute simplicité.
             </p>
           </div>
 
@@ -70,7 +76,8 @@ const Footer = () => {
 
         {/* Footer bas */}
         <div className="mt-12 pt-8 border-t border-blue-800 text-center text-sm text-blue-200">
-          <p>&copy; 2024 Avec Nafa Santé, Vous Gagnez Du Temps Et Vous Simplifiez Votre Vie En Accédant Facilement Aux Soins.
+          <p>Avec Nafa Santé, Vous Gagnez Du Temps Et Vous Simplifiez Votre Vie En Accédant Facilement Aux Soins. <br />
+            &copy; 2024 Nafa Santé. Tous Droit réservés
           </p>
         </div>
       </div>

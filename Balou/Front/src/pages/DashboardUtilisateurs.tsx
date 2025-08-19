@@ -180,7 +180,7 @@ const DashboardUtilisateurs: React.FC = () => {
                 </li>
                 <li>
                   <button
-                    onClick={() => setActiveTab('medical')}
+                    onClick={() => setActiveTab('appointements')}
                     className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
                       activeTab === 'medical'
                         ? 'bg-blue-600 text-white'

@@ -1,9 +1,21 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
-// ✅ Fournir une valeur par défaut au contexte pour éviter les erreurs
-const AuthContext = createContext(null);
+// ✅ Typage du contexte
+interface AuthContextType {
+  isAuthenticated: boolean;
+  login: () => void;
+  logout: () => void;
+}
 
-export const AuthProvider = ({ children }) => {
+// ✅ Typage des props du provider
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+// ✅ Création du contexte avec type
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const login = () => setIsAuthenticated(true);
@@ -16,8 +28,8 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ Ajouter une vérification pour éviter l'erreur si useAuth est utilisé sans Provider
-export const useAuth = () => {
+// ✅ Hook pour utiliser le contexte
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");

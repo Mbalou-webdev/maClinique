@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { CheckCircle, XCircle, Trash2 } from "react-feather";
 
+
 interface Appointment {
   _id: string;
   userId: string;
@@ -219,5 +220,7 @@ const AppointmentList: React.FC = () => {
     </div>
   );
 };
+
+ 
 
 export default AppointmentList;

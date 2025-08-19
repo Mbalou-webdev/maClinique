@@ -10,14 +10,20 @@ export const registerUser = async (req, res) => {
 
   const { lastName, firstName, phone, email, role, password, confirmPassword } = req.body;
 
-  // ✅ Corrigé : vérifie bien tous les champs requis
+  // ✅ Vérification de tous les champs requis
   if (!lastName || !firstName || !phone || !email || !password || !confirmPassword) {
     return res.status(400).json({ error: "Tous les champs sont requis." });
   }
 
-  // ✅ Ajout de la vérification de correspondance des mots de passe
+  // ✅ Vérification de correspondance des mots de passe
   if (password !== confirmPassword) {
     return res.status(400).json({ error: "Les mots de passe ne correspondent pas." });
+  }
+
+  // ✅ Vérification que l'email est valide
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: "Adresse email invalide." });
   }
 
   try {
@@ -35,7 +41,7 @@ export const registerUser = async (req, res) => {
       phone,
       email,
       role: role || "utilisateur",
-      password: hashedPassword, // bien stocker le mot de passe haché
+      password: hashedPassword, // stocker le mot de passe haché
     });
 
     await newUser.save();
@@ -45,6 +51,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ error: "Erreur serveur." });
   }
 };
+
 
 
 

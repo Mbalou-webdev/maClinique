@@ -11,6 +11,7 @@ import Admin from './pages/Admin';
 import Contact from './pages/Contact';
 import RendezVous from './pages/Rendevous'
 import DashboardUtilisateurs from './pages/DashboardUtilisateurs';
+
 // ✅ Fonction de protection des routes
 const ProtectedRoute = ({ element, role }: { element: JSX.Element; role?: string }) => {
   const userString = localStorage.getItem("user");
@@ -27,17 +28,17 @@ const ProtectedRoute = ({ element, role }: { element: JSX.Element; role?: string
   return element;
 };
 
-// Nouveau composant pour gérer l'affichage conditionnel de Navbar/Footer
+// Nouveau composant pour gérer l'affichage conditionnel de Navbar
 function AppContent() {
   const location = useLocation();
 
-  // Masquer Navbar et Footer sur /admin et ses sous-pages
-  const isAdminRoute = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  // Masquer Navbar uniquement sur /dashboardUtilisateurs et sur admin
+  const hideNavbar = location.pathname === '/dashboardUtilisateurs' || location.pathname === '/admin' || location.pathname.startsWith('/admin/');
 
   return (
     <div className="min-h-screen w-screen bg-gray-50">
-      {/* Afficher Navbar sauf sur admin */}
-      {!isAdminRoute && <Navbar />}
+      {/* Afficher Navbar sauf sur dashboard utilisateur et admin */}
+      {!hideNavbar && <Navbar />}
 
       <main>
         <Routes>
@@ -56,15 +57,11 @@ function AppContent() {
             path="/admin"
             element={<ProtectedRoute element={<Admin />} role="admin" />}
           />
-         
-
         </Routes>
-
-        
       </main>
 
-      {/* Afficher Footer sauf sur admin */}
-      {!isAdminRoute && <Footer />}
+      {/* Footer affiché partout */}
+      <Footer />
     </div>
   );
 }
@@ -78,3 +75,4 @@ function App() {
 }
 
 export default App;
++

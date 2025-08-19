@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../component/ui/button';
-import { Clock, Calendar, User, Check } from "lucide-react";
+import { Clock, Calendar, User, Check, Phone } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 interface Doctor {
@@ -123,12 +123,31 @@ const Appointment = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Prendre un rendez-vous</h1>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Header */}
+      <section className="bg-blue-600 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Prendre rendez-vous
+            </h1>
+            <p className="text-xl max-w-2xl mx-auto">
+              Réservez votre consultation en quelques clics. Simple, rapide et sécurisé.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Formulaire */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="text-center mb-8">
+            <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900">Formulaire de rendez-vous</h2>
+            <p className="text-gray-600">Remplissez les informations ci-dessous pour prendre votre rendez-vous</p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
-            
             {/* Informations personnelles */}
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -300,6 +319,41 @@ const Appointment = () => {
           </form>
         </div>
       </div>
+
+      {/* Important Information */}
+      <section className="py-16 bg-blue-50 mt-5">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Informations importantes</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <Clock className="h-5 w-5 mr-2 text-blue-600" />
+                  Avant votre rendez-vous
+                </h3>
+                <ul className="text-gray-600 space-y-2">
+                  <li>• Arrivez 15 minutes avant votre rendez-vous</li>
+                  <li>• Apportez votre pièce d'identité</li>
+                  <li>• Préparez vos documents médicaux</li>
+                  <li>• Notez vos questions à poser au médecin</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <Phone className="h-5 w-5 mr-2 text-green-600" />
+                  Annulation/Modification
+                </h3>
+                <ul className="text-gray-600 space-y-2">
+                  <li>• Prévenez 24h à l'avance minimum</li>
+                  <li>• Appelez le +224 613 16 25 89</li>
+                  <li>• Ou envoyez un email à info@nafasante.com</li>
+                  <li>• Vous recevrez une confirmation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

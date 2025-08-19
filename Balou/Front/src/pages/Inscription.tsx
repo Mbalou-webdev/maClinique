@@ -24,8 +24,20 @@ const Register = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  // ✅ Validation de l'email
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ✅ Vérification de l'email avant l'envoi
+    if (!validateEmail(formData.email)) {
+      setErrorMessage("Adresse email invalide.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Les mots de passe ne correspondent pas.");
