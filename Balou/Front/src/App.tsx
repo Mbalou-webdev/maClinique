@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import './index.css'
 import Navbar from './component/Navbar';
 import Footer from './component/ui/footer';
 import Home from './pages/Home';
@@ -11,6 +12,8 @@ import Admin from './pages/Admin';
 import Contact from './pages/Contact';
 import RendezVous from './pages/Rendevous'
 import DashboardUtilisateurs from './pages/DashboardUtilisateurs';
+import Utilisateur from './pages/Utilisateur';
+
 
 // ✅ Fonction de protection des routes
 const ProtectedRoute = ({ element, role }: { element: JSX.Element; role?: string }) => {
@@ -28,12 +31,15 @@ const ProtectedRoute = ({ element, role }: { element: JSX.Element; role?: string
   return element;
 };
 
-// Nouveau composant pour gérer l'affichage conditionnel de Navbar
+// Nouveau composant pour gérer l'affichage conditionnel de Navbar et Footer
 function AppContent() {
   const location = useLocation();
 
   // Masquer Navbar uniquement sur /dashboardUtilisateurs et sur admin
   const hideNavbar = location.pathname === '/dashboardUtilisateurs' || location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+
+  // Masquer Footer uniquement sur /admin
+  const hideFooter = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
 
   return (
     <div className="min-h-screen w-screen bg-gray-50">
@@ -51,6 +57,7 @@ function AppContent() {
           <Route path="/contact" element={<Contact/>} />
           <Route path="/Rendevous" element={<RendezVous/>} />
           <Route path='/dashboardUtilisateurs' element={<DashboardUtilisateurs/>}/>
+          <Route path="/Utilisateur" element={<Utilisateur/>} />
 
           {/* Route protégée admin */}
           <Route
@@ -60,8 +67,8 @@ function AppContent() {
         </Routes>
       </main>
 
-      {/* Footer affiché partout */}
-      <Footer />
+      {/* Afficher Footer partout sauf sur admin */}
+      {!hideFooter && <Footer />}
     </div>
   );
 }
@@ -75,4 +82,3 @@ function App() {
 }
 
 export default App;
-+

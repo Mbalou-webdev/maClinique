@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   BsCart3,
   BsFillArchiveFill,
@@ -8,51 +8,55 @@ import {
   BsFillGearFill,
 } from "react-icons/bs";
 
-// ✅ Typage des props directement dans la déclaration de la fonction
-const Sidebar = ({
-  openSidebarToggle,
-  OpenSidebar,
-}: {
+type SidebarProps = {
   openSidebarToggle: boolean;
   OpenSidebar: () => void;
-}) => {
+};
+
+const Sidebar = ({ openSidebarToggle, OpenSidebar }: SidebarProps) => {
+  const location = useLocation();
+
+  const links = [
+    { to: "/", icon: <BsGrid1X2Fill />, label: "Tableau de Bord" },
+     { to: "/Rendevous", icon: <BsFillGrid3X3GapFill />, label: "Rendez-vous" },
+    { to: "/Utilisateur", icon: <BsPeopleFill />, label: "Utilisateur" },
+    { to: "/settings", icon: <BsFillGearFill />, label: "Paramètres" },
+  ];
+
   return (
-    <aside id="sidebar" className={openSidebarToggle ? "sidebar-responsive" : ""}>
-      <div className="sidebar">
-        <div className="sidebar-brand">
-          <BsCart3 className="icon-header" /> SHOP
+    <aside
+      id="sidebar"
+      className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300
+        ${openSidebarToggle ? "translate-x-0" : "-translate-x-full"} 
+        md:translate-x-0`}
+    >
+      {/* Logo + bouton fermeture */}
+      <div className="flex items-center justify-between px-6 py-4 border-b relative z-50">
+        <div className="flex items-center gap-2 text-xl font-bold text-indigo-600">
+          <BsCart3 className="text-2xl" /> <span>NAFA SANTÉ</span>
         </div>
-        <span className="icon close-icon" onClick={OpenSidebar}>
-          X
-        </span>
+        <button
+          onClick={OpenSidebar}
+          className="md:hidden text-gray-500 hover:text-red-500 transition"
+        >
+          ✕
+        </button>
       </div>
 
-      <ul className="sidebar-list">
-        <li className="sidebar-list-item">
-          <Link to="/">
-            <BsGrid1X2Fill className="icon" /> Tableau de Bord
-          </Link>
-        </li>
-        <li className="sidebar-list-item">
-          <Link to="/appointment">
-            <BsFillArchiveFill className="icon" /> Date de Réservation
-          </Link>
-        </li>
-        <li className="sidebar-list-item">
-          <Link to="/Rendevous">
-            <BsFillGrid3X3GapFill className="icon" /> Rendez-vous
-          </Link>
-        </li>
-        <li className="sidebar-list-item">
-          <Link to="/users">
-            <BsPeopleFill className="icon" /> Utilisateur
-          </Link>
-        </li>
-        <li className="sidebar-list-item">
-          <Link to="/settings">
-            <BsFillGearFill className="icon" /> Paramètres
-          </Link>
-        </li>
+      {/* Liens */}
+      <ul className="mt-4">
+        {links.map((link, index) => (
+          <li key={index}>
+            <Link
+              to={link.to}
+              className={`flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition
+                ${location.pathname === link.to ? "bg-indigo-100 text-indigo-700 font-medium" : ""}`}
+            >
+              <span className="text-lg">{link.icon}</span>
+              <span>{link.label}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
     </aside>
   );

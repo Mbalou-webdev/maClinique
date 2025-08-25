@@ -18,6 +18,7 @@ import appointmentRoutes from './routes/appointmentRoutes.js';
 app.use("/api", userRoutes);
 app.use('/api/appointments', appointmentRoutes);
 
+
 app.listen(5000, () => {
   console.log("🚀 Serveur lancé sur le port 5000");
 });

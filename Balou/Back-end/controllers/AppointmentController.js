@@ -23,6 +23,7 @@ export const getAppointments = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération des rendez-vous' });
   }
 };
+
 // Mettre à jour le statut d'un rendez-vous
 export const updateAppointmentStatus = async (req, res) => {
   try {

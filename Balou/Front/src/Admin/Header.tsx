@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BsFillBellFill,
   BsFillEnvelopeFill,
@@ -6,27 +7,30 @@ import {
   BsJustify,
 } from "react-icons/bs";
 
-// ✅ Typage de la prop ici
-function Header({ OpenSidebar }: { OpenSidebar: () => void }) {
+// Définition du type des props
+type HeaderProps = {
+  OpenSidebar: () => void; // fonction sans paramètre et sans retour
+  isSidebarOpen: boolean; // ajout pour correspondre à Admin.tsx
+};
+
+const Header: React.FC<HeaderProps> = ({ OpenSidebar }) => {
   return (
-    <header className="flex justify-between items-center bg-white px-4 py-3 shadow-md">
-      {/* Bouton menu (pour sidebar) */}
-      <div className="flex items-center gap-4">
-        <BsJustify
-          className="text-2xl text-gray-700 cursor-pointer"
-          onClick={OpenSidebar}
-        />
-        <BsSearch className="text-xl text-gray-600 cursor-pointer" />
+    <header className="header">
+      <div className="menu-icon">
+        <BsJustify className="icon" onClick={OpenSidebar} />
       </div>
 
-      {/* Icônes à droite */}
-      <div className="flex items-center gap-4">
-        <BsFillBellFill className="text-xl text-gray-600 cursor-pointer" />
-        <BsFillEnvelopeFill className="text-xl text-gray-600 cursor-pointer" />
-        <BsPersonCircle className="text-2xl text-gray-700 cursor-pointer" />
+      <div className="header-left">
+        <BsSearch className="icon" />
+      </div>
+
+      <div className="header-right flex items-center space-x-4">
+        <BsFillBellFill className="icon" />
+        <BsFillEnvelopeFill className="icon" />
+        <BsPersonCircle className="icon" />
       </div>
     </header>
   );
-}
+};
 
 export default Header;

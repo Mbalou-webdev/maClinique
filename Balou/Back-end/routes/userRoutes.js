@@ -1,18 +1,28 @@
 import express from "express";
-import { registerUser, loginUser, getAllUsers } from "../controllers/UserController.js";
-
+import { 
+  registerUser, 
+  loginUser, 
+  getUsers, 
+  updateUser,   // ✅ Ajouté ici
+  deleteUser 
+} from "../controllers/UserController.js";
 
 const router = express.Router();
 
-// Inscription utilisateur
+// ▶ Inscription utilisateur
 router.post("/register", registerUser);
 
-// Connexion utilisateur
+// ▶ Connexion utilisateur
 router.post("/login", loginUser);
 
+// ▶ Récupérer tous les utilisateurs
+router.get("/users", getUsers);
+router.get("/", getUsers);
 
+// ▶ Mettre à jour un utilisateur
+router.patch("/:id", updateUser);
 
-// Route réservée à l'admin pour récupérer tous les utilisateurs
-router.get("/admin/users", getAllUsers);
+// ▶ Supprimer un utilisateur
+router.delete("/:id", deleteUser);  // ✅ Utilisation directe du contrôleur
 
 export default router;

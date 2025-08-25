@@ -62,13 +62,7 @@ const data = [
             </div>
 
             <div className="main-cards">
-                <div className="card">
-                    <div className="card-inner">
-                        <h3>Date de Reservation</h3>
-                        <BsFillArchiveFill className="card-icon"/>
-                    </div>
-                    <h1>300</h1>
-                </div>
+              
 
                 <div className="card">
                     <div className="card-inner">
@@ -85,8 +79,8 @@ const data = [
                     </div>
                     <h1>33</h1>
                 </div>
-
-                {/* <div className="card">
+{/* 
+                <div className="card">
                     <div className="card-inner">
                         <h3>ALERTS</h3>
                         <BsFillBellFill className="card-icon"/>
