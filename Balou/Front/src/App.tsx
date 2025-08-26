@@ -56,7 +56,10 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<Contact/>} />
           <Route path="/Rendevous" element={<RendezVous/>} />
-          <Route path='/dashboardUtilisateurs' element={<DashboardUtilisateurs/>}/>
+          <Route
+            path='/dashboardUtilisateurs'
+            element={<ProtectedRoute element={<DashboardUtilisateurs />} />}
+          />
           <Route path="/Utilisateur" element={<Utilisateur/>} />
 
           {/* Route protégée admin */}

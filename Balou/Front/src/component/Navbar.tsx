@@ -5,6 +5,7 @@ import logo from '../assets/images/Blue__white_and_green_Medical_care_logo__1_-r
 
 interface User {
   name: string;
+  role?: string;
 }
 
 export default function Navbar() {
@@ -12,11 +13,12 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Vérifie le token à chaque rendu
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      setUser({ name: 'Utilisateur connecté' });
+    const userData = localStorage.getItem('user'); // récupérer le rôle
+    if (token && userData) {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
     } else {
       setUser(null);
     }
@@ -24,8 +26,17 @@ export default function Navbar() {
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
     navigate('/');
+  };
+
+  const handleDashboardClick = () => {
+    if (user?.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/dashboardUtilisateurs');
+    }
   };
 
   return (
@@ -50,12 +61,12 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
+                <button
+                  onClick={handleDashboardClick}
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                 >
                   Mon espace personnel
-                </Link>
+                </button>
                 <button
                   onClick={handleSignOut}
                   className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
@@ -64,14 +75,9 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <>
-                <Button variant="outline" onClick={() => navigate('/register')}>
-                  Inscription
-                </Button>
-                <Button variant="primary" onClick={() => navigate('/login')}>
-                  Connexion
-                </Button>
-              </>
+              <Button variant="primary" onClick={() => navigate('/login')}>
+                Connexion
+              </Button>
             )}
           </div>
 
@@ -97,12 +103,12 @@ export default function Navbar() {
 
           {user ? (
             <>
-              <Link
-                to="/dashboard"
-                className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              <button
+                onClick={handleDashboardClick}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
               >
                 Mon espace personnel
-              </Link>
+              </button>
               <button
                 onClick={handleSignOut}
                 className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
@@ -111,14 +117,9 @@ export default function Navbar() {
               </button>
             </>
           ) : (
-            <>
-              <Button variant="outline" onClick={() => navigate('/register')} className="w-full">
-                Inscription
-              </Button>
-              <Button variant="primary" onClick={() => navigate('/login')} className="w-full">
-                Connexion
-              </Button>
-            </>
+            <Button variant="primary" onClick={() => navigate('/login')} className="w-full">
+              Connexion
+            </Button>
           )}
         </div>
       )}

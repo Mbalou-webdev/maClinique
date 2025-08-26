@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Heart, Mail, Lock } from "lucide-react";
 
@@ -9,6 +9,22 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  // ✅ Vérification si déjà connecté
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+
+    if (token && user) {
+      const parsedUser = JSON.parse(user);
+      // Redirection selon rôle
+      if (parsedUser.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/dashboardUtilisateurs", { replace: true });
+      }
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
