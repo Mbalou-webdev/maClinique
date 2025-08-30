@@ -18,6 +18,11 @@ import {
 interface Appointment {
   _id: string;
   userId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  age: number;
+  gender: string;
   service: string;
   date: string;
   time: string;
@@ -209,13 +214,17 @@ const AppointmentList: React.FC = () => {
         ) : (
           <>
             {/* Desktop Table */}
-            <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Date & Heure</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Médecin</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Service</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Patient</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Email</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Téléphone</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Âge / Sexe</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Statut</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Notes</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">Actions</th>
@@ -243,26 +252,21 @@ const AppointmentList: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
-                              <User className="w-4 h-4 text-slate-600" />
-                            </div>
-                            <span className="font-medium text-slate-900">{appt.doctorName}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <Stethoscope className="w-4 h-4 text-slate-400" />
-                            <span className="text-slate-900">{appt.service}</span>
-                          </div>
-                        </td>
+
+                        <td className="px-6 py-4">{appt.doctorName}</td>
+                        <td className="px-6 py-4">{appt.service}</td>
+                        <td className="px-6 py-4">{appt.fullName}</td>
+                        <td className="px-6 py-4">{appt.email}</td>
+                        <td className="px-6 py-4">{appt.phone}</td>
+                        <td className="px-6 py-4">{appt.age} ans, {appt.gender}</td>
+
                         <td className="px-6 py-4">
                           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border ${statusConfig.bg} ${statusConfig.text}`}>
                             <div className={`w-2 h-2 rounded-full ${statusConfig.dot}`}></div>
                             <span className="text-sm font-medium">{appt.status}</span>
                           </div>
                         </td>
+
                         <td className="px-6 py-4">
                           {appt.notes ? (
                             <div className="flex items-start gap-2">
@@ -273,6 +277,7 @@ const AppointmentList: React.FC = () => {
                             <span className="text-slate-400 text-sm">—</span>
                           )}
                         </td>
+
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-center gap-2">
                             {actionLoading === appt._id ? (
@@ -334,28 +339,29 @@ const AppointmentList: React.FC = () => {
                         <Stethoscope className="w-5 h-5 text-slate-400" />
                         <span className="text-slate-700">{appt.service}</span>
                       </div>
+                      <div className="flex items-center gap-3">
+                        <User className="w-5 h-5 text-slate-400" />
+                        <span className="text-slate-700">{appt.fullName}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-slate-700 font-medium">{appt.age} ans, {appt.gender}</span>
+                      </div>
                       {appt.notes && (
                         <div className="flex items-start gap-3">
-                          <FileText className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-                          <p className="text-slate-600 text-sm">{appt.notes}</p>
+                          <FileText className="w-4 h-4 text-slate-400 mt-0.5" />
+                          <p className="text-slate-700 text-sm">{appt.notes}</p>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+                    <div className="flex items-center justify-between gap-2">
                       {actionLoading === appt._id ? (
                         <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
                       ) : (
                         <>
-                          <button onClick={() => updateStatus(appt._id, "confirmé")} className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all duration-150" title="Confirmer">
-                            <CheckCircle className="w-5 h-5" />
-                          </button>
-                          <button onClick={() => updateStatus(appt._id, "annulé")} className="p-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all duration-150" title="Annuler">
-                            <XCircle className="w-5 h-5" />
-                          </button>
-                          <button onClick={() => deleteAppointment(appt._id)} className="p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-all duration-150" title="Supprimer">
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                          <button onClick={() => updateStatus(appt._id, "confirmé")} className="flex-1 p-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-medium">Confirmer</button>
+                          <button onClick={() => updateStatus(appt._id, "annulé")} className="flex-1 p-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-medium">Annuler</button>
+                          <button onClick={() => deleteAppointment(appt._id)} className="flex-1 p-2 bg-slate-50 text-slate-600 rounded-xl text-sm font-medium">Supprimer</button>
                         </>
                       )}
                     </div>

@@ -17,13 +17,14 @@ const ReserveButton: React.FC<ReserveButtonProps> = ({ isAuthenticated, onClick,
     className={`
       ${full
         ? isAuthenticated 
-          ? 'bg-blue-600 hover:bg-blue-700 text-lg px-8 py-2'  // couleur et padding ici
-          : 'bg-gray-400 hover:bg-blue-600 text-sm px-4 py-2 cursor-pointer'
+          ? 'bg-blue-600 hover:bg-blue-700 text-lg px-8 py-2' 
+          : 'bg-gray-400 text-white text-sm px-4 py-2 cursor-not-allowed'
         : isAuthenticated 
           ? 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-sm px-4 py-2 w-full' 
-          : 'border-gray-400 text-gray-500 hover:bg-gray-300 text-sm px-4 py-2 w-full'
+          : 'border-gray-400 text-gray-500 text-sm px-4 py-2 w-full cursor-not-allowed'
       } transition-all duration-300`}
     onClick={onClick}
+    disabled={!isAuthenticated} // ✅ Désactive quand pas connecté
   >
     {isAuthenticated ? (
       full ? "Réserver maintenant" : "Réserver"
@@ -42,8 +43,20 @@ const Home = () => {
   const [showAuthMessage, setShowAuthMessage] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token);
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    };
+
+    // Vérifie au montage
+    checkAuth();
+
+    // Écoute les changements dans le localStorage
+    window.addEventListener("storage", checkAuth);
+
+    return () => {
+      window.removeEventListener("storage", checkAuth);
+    };
   }, []);
 
   const handleAppointment = () => {
@@ -52,7 +65,7 @@ const Home = () => {
       setTimeout(() => {
         localStorage.setItem('redirectAfterLogin', '/appointment');
         navigate('/register');
-        window.scrollTo(0, 0); // force le scroll en haut lors de la navigation
+        window.scrollTo(0, 0);
       }, 2000);
     } else {
       navigate('/appointment');

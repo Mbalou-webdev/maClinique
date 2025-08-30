@@ -1,11 +1,13 @@
 import express from 'express';
 import Appointment from '../models/Appointment.js';
-import { createAppointment, getAppointments, updateAppointmentStatus } from '../controllers/AppointmentController.js';
+import { createAppointment, getAppointments, getUserAppointments, updateAppointmentStatus } from '../controllers/AppointmentController.js';
 
 const router = express.Router();
 
 // 🔹 Créer un rendez-vous
 router.post('/', createAppointment);
+
+router.get('/user/:userId', getUserAppointments); // 👈 récupérer les RDV par user
 
 // 🔹 Obtenir tous les rendez-vous
 router.get('/appointments', getAppointments);

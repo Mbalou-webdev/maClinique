@@ -56,7 +56,8 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<Contact/>} />
           <Route path="/Rendevous" element={<RendezVous/>} />
-          <Route
+                   
+             <Route
             path='/dashboardUtilisateurs'
             element={<ProtectedRoute element={<DashboardUtilisateurs />} />}
           />

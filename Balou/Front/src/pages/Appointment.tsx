@@ -11,24 +11,9 @@ interface Doctor {
 }
 
 const doctors: Doctor[] = [
-  {
-    id: 1,
-    name: "Dr. Sophie Martin",
-    speciality: "Médecin généraliste",
-    availableSlots: ["09:00", "10:00", "11:00", "14:00", "15:00"]
-  },
-  {
-    id: 2,
-    name: "Dr. Pierre Dubois",
-    speciality: "Cardiologue",
-    availableSlots: ["09:30", "10:30", "14:30", "15:30"]
-  },
-  {
-    id: 3,
-    name: "Dr. Marie Laurent",
-    speciality: "Pédiatre",
-    availableSlots: ["09:00", "11:00", "14:00", "16:00"]
-  }
+  { id: 1, name: "Dr. Sophie Martin", speciality: "Médecin généraliste", availableSlots: ["09:00", "10:00", "11:00", "14:00", "15:00"] },
+  { id: 2, name: "Dr. Pierre Dubois", speciality: "Cardiologue", availableSlots: ["09:30", "10:30", "14:30", "15:30"] },
+  { id: 3, name: "Dr. Marie Laurent", speciality: "Pédiatre", availableSlots: ["09:00", "11:00", "14:00", "16:00"] }
 ];
 
 const Appointment = () => {
@@ -43,16 +28,17 @@ const Appointment = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: ''
+    phone: '',
+    age: '',
+    gender: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const user = JSON.parse(localStorage.getItem("user") || "null");
 
     if (!user || !user._id) {
@@ -60,30 +46,43 @@ const Appointment = () => {
       return navigate("/login");
     }
 
+    // ✅ Conversion de la date pour MongoDB
+    const appointmentDate = new Date(selectedDate);
+
+    // 🔹 Préparer les données à envoyer
+    const payload = {
+      userId: user._id,
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      age: Number(formData.age),
+      gender: formData.gender,
+      service,
+      date: appointmentDate,
+      time: selectedTime,
+      doctorName: selectedDoctor?.name,
+      notes,
+    };
+
+    console.log("Données envoyées au serveur :", payload);
+
     try {
       const response = await fetch("http://localhost:5000/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user._id,
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          service,
-          date: selectedDate,
-          time: selectedTime,
-          doctorName: selectedDoctor?.name,
-          notes,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      const data = await response.json();
+      console.log("Réponse serveur :", data);
 
       if (response.ok) {
         setShowConfirmation(true);
       } else {
-        alert("❌ Une erreur est survenue lors de l’enregistrement du rendez-vous.");
+        alert(`❌ Une erreur est survenue : ${data?.error || data?.message || "Serveur"}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Erreur de communication avec le serveur :", error);
       alert("❌ Erreur de communication avec le serveur.");
     }
   };
@@ -110,7 +109,7 @@ const Appointment = () => {
                 setSelectedTime('');
                 setService('');
                 setNotes('');
-                setFormData({ fullName: '', email: '', phone: '' });
+                setFormData({ fullName: '', email: '', phone: '', age: '', gender: '' });
               }}
               className="bg-blue-600 hover:bg-blue-700"
             >
@@ -126,20 +125,16 @@ const Appointment = () => {
     <div className="bg-gray-50 min-h-screen">
       {/* Header */}
       <section className="bg-blue-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Prendre rendez-vous
-            </h1>
-            <p className="text-xl max-w-2xl mx-auto">
-              Réservez votre consultation en quelques clics. Simple, rapide et sécurisé.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Prendre rendez-vous</h1>
+          <p className="text-xl max-w-2xl mx-auto">
+            Réservez votre consultation en quelques clics. Simple, rapide et sécurisé.
+          </p>
         </div>
       </section>
 
       {/* Formulaire */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 m-5 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
             <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
@@ -151,63 +146,56 @@ const Appointment = () => {
             {/* Informations personnelles */}
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <User className="h-5 w-5 mr-2 text-blue-600" />
-                Informations personnelles
+                <User className="h-5 w-5 mr-2 text-blue-600" /> Informations personnelles
               </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {["fullName", "email", "phone", "age"].map((field) => (
+                  <div key={field}>
+                    <label htmlFor={field} className="block text-sm font-medium text-gray-700 mb-2">
+                      {field === "fullName" ? "Nom complet *" :
+                       field === "email" ? "Email *" :
+                       field === "phone" ? "Téléphone *" : "Âge *"}
+                    </label>
+                    <input
+                      type={field === "age" ? "number" : field === "email" ? "email" : "text"}
+                      id={field}
+                      name={field}
+                      required
+                      value={formData[field as keyof typeof formData]}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                      placeholder={field === "fullName" ? "Votre nom complet" :
+                                   field === "email" ? "votre@email.com" :
+                                   field === "phone" ? "+224 123 456 789" : "Ex: 25"}
+                    />
+                  </div>
+                ))}
+
                 <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Nom complet *
+                  <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                    Sexe *
                   </label>
-                  <input
-                    type="text"
-                    id="fullName"
-                    name="fullName"
+                  <select
+                    id="gender"
+                    name="gender"
                     required
-                    value={formData.fullName}
+                    value={formData.gender}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Votre nom complet"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="votre@email.com"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Téléphone *
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    required
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="+224 123 456 789"
-                  />
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Sélectionnez</option>
+                    <option value="Homme">Homme</option>
+                    <option value="Femme">Femme</option>
+                    <option value="Autre">Autre</option>
+                  </select>
                 </div>
               </div>
             </div>
 
             {/* Service */}
             <div>
-              <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2">
-                Service
-              </label>
+              <label htmlFor="service" className="block text-sm font-medium text-gray-700 mb-2"> Service </label>
               <select
                 id="service"
                 value={service}
@@ -225,9 +213,7 @@ const Appointment = () => {
 
             {/* Date */}
             <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
-                Date
-              </label>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2"> Date </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
@@ -243,17 +229,13 @@ const Appointment = () => {
 
             {/* Médecins */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Médecin disponible
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2"> Médecin disponible </label>
               <div className="grid grid-cols-1 gap-4">
                 {doctors.map((doctor) => (
                   <div
                     key={doctor.id}
                     className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                      selectedDoctor?.id === doctor.id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-300'
+                      selectedDoctor?.id === doctor.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
                     }`}
                     onClick={() => setSelectedDoctor(doctor)}
                   >
@@ -272,17 +254,13 @@ const Appointment = () => {
             {/* Horaires */}
             {selectedDoctor && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Horaires disponibles
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2"> Horaires disponibles </label>
                 <div className="grid grid-cols-3 gap-3">
                   {selectedDoctor.availableSlots.map((time) => (
                     <div
                       key={time}
                       className={`p-3 border rounded-lg cursor-pointer text-center transition-colors ${
-                        selectedTime === time
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
+                        selectedTime === time ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'
                       }`}
                       onClick={() => setSelectedTime(time)}
                     >
@@ -296,9 +274,7 @@ const Appointment = () => {
 
             {/* Notes */}
             <div>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-                Notes supplémentaires
-              </label>
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2"> Notes supplémentaires </label>
               <textarea
                 id="notes"
                 value={notes}
@@ -312,7 +288,17 @@ const Appointment = () => {
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700"
-              disabled={!selectedDate || !selectedDoctor || !selectedTime || !service || !formData.fullName || !formData.email || !formData.phone}
+              disabled={
+                !selectedDate ||
+                !selectedDoctor ||
+                !selectedTime ||
+                !service ||
+                !formData.fullName ||
+                !formData.email ||
+                !formData.phone ||
+                !formData.age ||
+                !formData.gender
+              }
             >
               Confirmer le rendez-vous
             </Button>
@@ -320,7 +306,7 @@ const Appointment = () => {
         </div>
       </div>
 
-      {/* Important Information */}
+      {/* Informations importantes */}
       <section className="py-16 bg-blue-50 mt-5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg shadow-lg p-8">
@@ -328,8 +314,7 @@ const Appointment = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                  <Clock className="h-5 w-5 mr-2 text-blue-600" />
-                  Avant votre rendez-vous
+                  <Clock className="h-5 w-5 mr-2 text-blue-600" /> Avant votre rendez-vous
                 </h3>
                 <ul className="text-gray-600 space-y-2">
                   <li>• Arrivez 15 minutes avant votre rendez-vous</li>
@@ -340,8 +325,7 @@ const Appointment = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                  <Phone className="h-5 w-5 mr-2 text-green-600" />
-                  Annulation/Modification
+                  <Phone className="h-5 w-5 mr-2 text-green-600" /> Annulation/Modification
                 </h3>
                 <ul className="text-gray-600 space-y-2">
                   <li>• Prévenez 24h à l'avance minimum</li>

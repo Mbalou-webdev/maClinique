@@ -8,42 +8,55 @@ interface User {
   role?: string;
 }
 
-export default function Navbar() {
-  const [user, setUser] = useState<User | null>(null);
+interface NavbarProps {
+  setUser?: (user: User | null) => void; // pour propager le user
+}
+
+export default function Navbar({ setUser }: NavbarProps) {
+  const [user, setLocalUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  // ✅ Fonction pour synchroniser l'état user avec le localStorage
+  const syncUser = () => {
     const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user'); // récupérer le rôle
+    const userData = localStorage.getItem('user');
     if (token && userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
+      setLocalUser(JSON.parse(userData));
     } else {
-      setUser(null);
+      setLocalUser(null);
     }
+  };
+
+  useEffect(() => {
+    // Vérifie au montage
+    syncUser();
+
+    // Écoute les changements de localStorage (utile si multi-onglets ou logout)
+    window.addEventListener('storage', syncUser);
+
+    return () => {
+      window.removeEventListener('storage', syncUser);
+    };
   }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setUser(null);
+    setLocalUser(null);
+    if (setUser) setUser(null);
     navigate('/');
   };
 
   const handleDashboardClick = () => {
-    if (user?.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/dashboardUtilisateurs');
-    }
+    if (user?.role === 'admin') navigate('/admin');
+    else navigate('/dashboardUtilisateurs');
   };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 md:h-28">
-          
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2">
