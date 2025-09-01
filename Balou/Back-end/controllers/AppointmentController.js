@@ -16,7 +16,9 @@ export const createAppointment = async (req, res) => {
       date,
       time,
       doctorName,
-      notes
+      notes,
+      motif,        // 🔹 Nouveau champ
+      diagnostic    // 🔹 Nouveau champ
     } = req.body;
 
     const appointment = new Appointment({
@@ -30,7 +32,9 @@ export const createAppointment = async (req, res) => {
       date,
       time,
       doctorName,
-      notes
+      notes,
+      motif,        // 🔹 Motif du patient
+      diagnostic    // 🔹 Diagnostic médecin
     });
 
     await appointment.save();
@@ -65,12 +69,18 @@ export const getAppointments = async (req, res) => {
   }
 };
 
-// Mettre à jour le statut d'un rendez-vous
+// Mettre à jour le statut, motif ou diagnostic d'un rendez-vous
 export const updateAppointmentStatus = async (req, res) => {
   try {
+    const updateData = { status: req.body.status };
+
+    // 🔹 Ajouter motif/diagnostic si fournis
+    if (req.body.motif !== undefined) updateData.motif = req.body.motif;
+    if (req.body.diagnostic !== undefined) updateData.diagnostic = req.body.diagnostic;
+
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.id,
-      { status: req.body.status },
+      updateData,
       { new: true }
     );
     if (!appointment) {

@@ -89,17 +89,11 @@ const UserManagement: React.FC = () => {
 
   // Fonction de suppression d'un utilisateur
   const deleteUser = async (user: User) => {
-    if (!window.confirm(`Voulez-vous vraiment supprimer ${user.firstName} ${user.lastName} ?`)) return;
-  
     try {
-      // Appel vers le backend
       await axios.delete(`http://localhost:5000/api/users/${user._id}`);
-  
-      // Mise à jour de la liste localement
-      setUsers((prev) => prev.filter((u) => u._id !== user._id));
-  
-      // Message de succès
+      setUsers(prev => prev.filter(u => u._id !== user._id));
       showSuccess(`${user.firstName} ${user.lastName} a été supprimé avec succès.`);
+      setDeleteModal({ isOpen: false, user: null });
     } catch (error: any) {
       console.error('❌ Erreur lors de la suppression :', error.response?.data || error.message);
       alert('Erreur lors de la suppression de l\'utilisateur.');
@@ -196,10 +190,11 @@ const UserManagement: React.FC = () => {
       {/* Users Table */}
       <UsersTable users={filteredUsers} onDelete={handleDeleteClick} getRoleBadgeColor={getRoleBadgeColor} />
 
-        <ConfirmationModal
+      {/* Confirmation Modal */}
+      <ConfirmationModal
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, user: null })}
-        onConfirm={() => { if (deleteModal.user) deleteUser(deleteModal.user); }} // ✅ vérifie que user n'est pas null
+        onConfirm={() => { if (deleteModal.user) deleteUser(deleteModal.user); }}
         userName={deleteModal.user ? `${deleteModal.user.firstName} ${deleteModal.user.lastName}` : ''}
       />
     </div>

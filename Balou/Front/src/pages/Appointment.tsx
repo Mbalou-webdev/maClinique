@@ -46,10 +46,8 @@ const Appointment = () => {
       return navigate("/login");
     }
 
-    // ✅ Conversion de la date pour MongoDB
     const appointmentDate = new Date(selectedDate);
 
-    // 🔹 Préparer les données à envoyer
     const payload = {
       userId: user._id,
       fullName: formData.fullName,
@@ -64,8 +62,6 @@ const Appointment = () => {
       notes,
     };
 
-    console.log("Données envoyées au serveur :", payload);
-
     try {
       const response = await fetch("http://localhost:5000/api/appointments", {
         method: "POST",
@@ -74,7 +70,6 @@ const Appointment = () => {
       });
 
       const data = await response.json();
-      console.log("Réponse serveur :", data);
 
       if (response.ok) {
         setShowConfirmation(true);
@@ -110,6 +105,7 @@ const Appointment = () => {
                 setService('');
                 setNotes('');
                 setFormData({ fullName: '', email: '', phone: '', age: '', gender: '' });
+                navigate("/"); // 🔹 Redirection vers l'accueil
               }}
               className="bg-blue-600 hover:bg-blue-700"
             >

@@ -15,6 +15,11 @@ const appointmentSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   time: { type: String, required: true },
   doctorName: { type: String, required: true },
+
+  // 🔹 Nouveau : Motif et Diagnostic
+  motif: { type: String, default: "" },        // Motif du rendez-vous (patient)
+  diagnostic: { type: String, default: "" },   // Diagnostic (médecin)
+
   notes: { type: String },
 
   status: { type: String, default: 'en attente' },

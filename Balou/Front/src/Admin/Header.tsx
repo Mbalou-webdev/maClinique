@@ -31,6 +31,6 @@ const Header: React.FC<HeaderProps> = ({ OpenSidebar }) => {
       </div>
     </header>
   );
-};
+}; 
 
 export default Header;

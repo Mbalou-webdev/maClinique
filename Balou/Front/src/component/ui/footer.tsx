@@ -45,7 +45,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-sm">
-              <li>Consultations Cliniques</li>
+              <li>Pédiatrie</li>
               <li>Consultations Générales</li>
               <li>Soins d'Urgence</li>
               <li>Urgences</li>

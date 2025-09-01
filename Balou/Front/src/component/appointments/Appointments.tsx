@@ -32,6 +32,14 @@ interface Appointment {
   createdAt: string;
 }
 
+interface User {
+  id: string;
+  role: "admin" | "user";
+}
+
+// Supposons que tu récupères l'utilisateur connecté quelque part
+const currentUser: User = { id: "123", role: "admin" }; // à adapter selon ton auth
+
 const AppointmentList: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [error, setError] = useState<string>("");
@@ -40,12 +48,13 @@ const AppointmentList: React.FC = () => {
   const [search, setSearch] = useState<string>("");
   const [actionLoading, setActionLoading] = useState<string>("");
 
+  // 🔹 Récupération de tous les rendez-vous
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         setLoading(true);
         const res = await axios.get<Appointment[]>(
-          "http://localhost:5000/api/appointments/appointments"
+          "http://localhost:5000/api/appointments"
         );
         setAppointments(res.data);
       } catch (err) {
@@ -61,9 +70,7 @@ const AppointmentList: React.FC = () => {
   const updateStatus = async (id: string, newStatus: string) => {
     try {
       setActionLoading(id);
-      await axios.patch(`http://localhost:5000/api/appointments/${id}`, {
-        status: newStatus,
-      });
+      await axios.patch(`http://localhost:5000/api/appointments/${id}`, { status: newStatus });
       setAppointments((prev) =>
         prev.map((appt) =>
           appt._id === id ? { ...appt, status: newStatus } : appt
@@ -99,12 +106,12 @@ const AppointmentList: React.FC = () => {
   );
 
   const getStatusConfig = (status: string) => {
-    const configs = {
+    const configs: Record<string, { bg: string; text: string; dot: string }> = {
       confirmé: { bg: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", dot: "bg-emerald-500" },
       "en attente": { bg: "bg-amber-50 border-amber-200", text: "text-amber-700", dot: "bg-amber-500" },
       annulé: { bg: "bg-rose-50 border-rose-200", text: "text-rose-700", dot: "bg-rose-500" }
     };
-    return configs[status as keyof typeof configs] || { bg: "bg-slate-50 border-slate-200", text: "text-slate-700", dot: "bg-slate-500" };
+    return configs[status.toLowerCase()] || { bg: "bg-slate-50 border-slate-200", text: "text-slate-700", dot: "bg-slate-500" };
   };
 
   const getFilterButtonClass = (status: string) => {
@@ -181,7 +188,7 @@ const AppointmentList: React.FC = () => {
             {/* Filters */}
             <div className="flex items-center gap-2 flex-wrap">
               <Filter className="w-5 h-5 text-slate-400" />
-              {[
+              {[ 
                 { key: "all", label: `Tous (${totalAppointments})` },
                 { key: "confirmé", label: `Confirmé (${confirmedCount})` },
                 { key: "en attente", label: `En attente (${pendingCount})` },
@@ -226,7 +233,7 @@ const AppointmentList: React.FC = () => {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Téléphone</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Âge / Sexe</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Statut</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Notes</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">Motif / Diagnostic</th>
                     <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">Actions</th>
                   </tr>
                 </thead>
@@ -268,13 +275,38 @@ const AppointmentList: React.FC = () => {
                         </td>
 
                         <td className="px-6 py-4">
-                          {appt.notes ? (
-                            <div className="flex items-start gap-2">
-                              <FileText className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                              <p className="text-sm text-slate-600 truncate" title={appt.notes}>{appt.notes}</p>
-                            </div>
+                          {new Date(appt.date) < new Date() ? (
+                            currentUser.role === "admin" ? (
+                              <textarea
+                                className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                                value={appt.notes || ""}
+                                placeholder="Ajouter un diagnostic..."
+                                onChange={(e) =>
+                                  setAppointments((prev) =>
+                                    prev.map((a) =>
+                                      a._id === appt._id ? { ...a, notes: e.target.value } : a
+                                    )
+                                  )
+                                }
+                                onBlur={async () => {
+                                  try {
+                                    setActionLoading(appt._id);
+                                    await axios.patch(`http://localhost:5000/api/appointments/${appt._id}`, {
+                                      diagnostic: appt.notes,
+                                    });
+                                  } catch (err) {
+                                    console.error("❌ Erreur lors de l'enregistrement du diagnostic :", err);
+                                    setError("Erreur lors de l'enregistrement du diagnostic.");
+                                  } finally {
+                                    setActionLoading("");
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <span className="text-slate-400 text-sm">{appt.notes || "Diagnostic non renseigné"}</span>
+                            )
                           ) : (
-                            <span className="text-slate-400 text-sm">—</span>
+                            <span className="text-slate-700 text-sm">{appt.notes || "Motif non renseigné"}</span>
                           )}
                         </td>
 
@@ -330,38 +362,63 @@ const AppointmentList: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center gap-3">
-                        <User className="w-5 h-5 text-slate-400" />
-                        <span className="font-medium text-slate-900">{appt.doctorName}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Stethoscope className="w-5 h-5 text-slate-400" />
-                        <span className="text-slate-700">{appt.service}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <User className="w-5 h-5 text-slate-400" />
-                        <span className="text-slate-700">{appt.fullName}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-slate-700 font-medium">{appt.age} ans, {appt.gender}</span>
-                      </div>
-                      {appt.notes && (
-                        <div className="flex items-start gap-3">
-                          <FileText className="w-4 h-4 text-slate-400 mt-0.5" />
-                          <p className="text-slate-700 text-sm">{appt.notes}</p>
-                        </div>
+                    <p className="text-sm text-slate-600 mb-1"><strong>Médecin :</strong> {appt.doctorName}</p>
+                    <p className="text-sm text-slate-600 mb-1"><strong>Service :</strong> {appt.service}</p>
+                    <p className="text-sm text-slate-600 mb-1"><strong>Patient :</strong> {appt.fullName}</p>
+                    <p className="text-sm text-slate-600 mb-1"><strong>Email :</strong> {appt.email}</p>
+                    <p className="text-sm text-slate-600 mb-1"><strong>Téléphone :</strong> {appt.phone}</p>
+                    <p className="text-sm text-slate-600 mb-2"><strong>Âge / Sexe :</strong> {appt.age} ans, {appt.gender}</p>
+
+                    <div className="mb-2">
+                      {new Date(appt.date) < new Date() ? (
+                        currentUser.role === "admin" ? (
+                          <textarea
+                            className="w-full p-2 border border-slate-200 rounded-lg text-sm"
+                            value={appt.notes || ""}
+                            placeholder="Ajouter un diagnostic..."
+                            onChange={(e) =>
+                              setAppointments((prev) =>
+                                prev.map((a) =>
+                                  a._id === appt._id ? { ...a, notes: e.target.value } : a
+                                )
+                              )
+                            }
+                            onBlur={async () => {
+                              try {
+                                setActionLoading(appt._id);
+                                await axios.patch(`http://localhost:5000/api/appointments/${appt._id}`, {
+                                  diagnostic: appt.notes,
+                                });
+                              } catch (err) {
+                                console.error("❌ Erreur lors de l'enregistrement du diagnostic :", err);
+                                setError("Erreur lors de l'enregistrement du diagnostic.");
+                              } finally {
+                                setActionLoading("");
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="text-slate-400 text-sm">{appt.notes || "Diagnostic non renseigné"}</span>
+                        )
+                      ) : (
+                        <span className="text-slate-700 text-sm">{appt.notes || "Motif non renseigné"}</span>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-end gap-2">
                       {actionLoading === appt._id ? (
                         <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
                       ) : (
                         <>
-                          <button onClick={() => updateStatus(appt._id, "confirmé")} className="flex-1 p-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-medium">Confirmer</button>
-                          <button onClick={() => updateStatus(appt._id, "annulé")} className="flex-1 p-2 bg-rose-50 text-rose-600 rounded-xl text-sm font-medium">Annuler</button>
-                          <button onClick={() => deleteAppointment(appt._id)} className="flex-1 p-2 bg-slate-50 text-slate-600 rounded-xl text-sm font-medium">Supprimer</button>
+                          <button onClick={() => updateStatus(appt._id, "confirmé")} className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all duration-150" title="Confirmer">
+                            <CheckCircle className="w-5 h-5" />
+                          </button>
+                          <button onClick={() => updateStatus(appt._id, "annulé")} className="p-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-all duration-150" title="Annuler">
+                            <XCircle className="w-5 h-5" />
+                          </button>
+                          <button onClick={() => deleteAppointment(appt._id)} className="p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-all duration-150" title="Supprimer">
+                            <Trash2 className="w-5 h-5" />
+                          </button>
                         </>
                       )}
                     </div>
